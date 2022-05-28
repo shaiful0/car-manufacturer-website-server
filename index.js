@@ -1,6 +1,7 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors')
+var jwt = require('jsonwebtoken');
 const app = express()
 require ('dotenv').config();
 const port = process.env.PORT || 5000
@@ -16,6 +17,11 @@ async function run() {
   try{
     await client.connect();
     const itemCollection = client.db('car-parts').collection('items');
+    const orderCollection = client.db('car-parts').collection('orders');
+    const reviewCollection = client.db('car-parts').collection('reviews');
+    const usersCollection = client.db('car-parts').collection('users');
+
+
     app.get('/items', async (req, res) => {
       const query = {};
       const cursor = itemCollection.find(query);
@@ -28,7 +34,58 @@ async function run() {
       const query = {_id:ObjectId(id)}
       const items = await itemCollection.findOne(query)
       res.send(items);
+    });
+
+
+    app.post('/orders' , async (req,res) =>{
+      const orders = req.body;
+      const result = await orderCollection.insertOne(orders);
+      res.send(result)
+
     })
+
+    app.get('/orders', async(req, res) =>{
+      const userEmail = req.query.userEmail;
+      const query = {userEmail: userEmail};
+      const orders =await orderCollection.find(query).toArray()
+      res.send(orders);
+    });
+
+    app.delete('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      res.send(result)
+    });
+
+    app.post('/reviews' , async (req,res) =>{
+      const reviews = req.body;
+      const result = await reviewCollection.insertOne(reviews);
+      res.send(result)
+
+    })
+
+    app.get('/reviews', async(req, res) =>{
+      const userEmail = req.query.userEmail;
+      const query = {userEmail: userEmail};
+      const review =await reviewCollection.find(query).toArray()
+      res.send(review);
+    });
+    
+    app.put('/user/:email', async(req,res) =>{
+      const email = req.params.email;
+      user = req.body;
+      const filter = {email:email}
+      const options = {upsert:true}
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await usersCollection.updateOne(filter,updateDoc,options)
+      res.send(result);
+    })
+
+
+
   }
   finally{
 
