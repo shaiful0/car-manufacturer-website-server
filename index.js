@@ -111,7 +111,7 @@ async function run() {
         req.status(403).send({message:'forbiden'})
       }
 
-    })
+    });
 
 
     app.put('/user/:email', async (req, res) => {
