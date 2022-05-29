@@ -82,7 +82,7 @@ async function run() {
       const result = await reviewCollection.insertOne(reviews);
       res.send(result)
 
-    })
+    });
 
     app.get('/reviews', async (req, res) => {
       const userEmail = req.query.userEmail;
@@ -94,7 +94,7 @@ async function run() {
     app.get('/user', async (req, res) => {
       const users = await usersCollection.find().toArray();
       res.send(users);
-    })
+    });
 
     app.put('/user/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
